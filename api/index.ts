@@ -33,6 +33,10 @@ const SITE_CONFIG: Record<string, { name: string; domain: string }> = {
     name: 'King Arthur Baking',
     domain: 'kingarthurbaking.com',
   },
+  tastyco: {
+    name: 'Tasty Co',
+    domain: 'tasty.co',
+  },
 };
 
 // Generate stable ID from URL using SHA-256 hash
@@ -100,6 +104,7 @@ function extractFromJsonLd(html: string): Record<string, unknown> | null {
       if (!content) continue;
 
       const data: unknown = JSON.parse(content);
+      console.log(JSON.stringify(data, null, 2));
 
       // Handle array of JSON-LD objects
       const items = Array.isArray(data) ? data : [data];

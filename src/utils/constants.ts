@@ -37,6 +37,12 @@ export const SUPPORTED_SITES: SupportedSite[] = [
     domain: 'kingarthurbaking.com',
     example: 'https://www.kingarthurbaking.com/recipes/dish-name',
   },
+  {
+    id: 'tastyco',
+    name: 'Tasty Co',
+    domain: 'tasty.co',
+    example: 'https://tasty.co/recipe/dish-name',
+  },
 ];
 
 export const MAX_RECENT_RECIPES = 5;
