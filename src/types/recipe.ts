@@ -4,6 +4,10 @@ export interface Recipe {
   ingredients: string[];
   instructions: string[];
   image?: string;
+  author?: string;
+  prepTime?: string;
+  cookTime?: string;
+  totalTime?: string;
   sourceUrl: string;
   siteName: string;
   scrapedAt: string;
