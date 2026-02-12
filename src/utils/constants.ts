@@ -43,6 +43,12 @@ export const SUPPORTED_SITES: SupportedSite[] = [
     domain: 'tasty.co',
     example: 'https://tasty.co/recipe/dish-name',
   },
+  {
+    id: 'cookpad',
+    name: 'Cookpad',
+    domain: 'cookpad.com',
+    example: 'https://cookpad.com/eng/recipes/12345678/dish-name',
+  },
 ];
 
 export const MAX_RECENT_RECIPES = 5;

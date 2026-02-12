@@ -41,6 +41,10 @@ const SITE_CONFIG: Record<string, { name: string; domain: string }> = {
     name: 'Tasty Co',
     domain: 'tasty.co',
   },
+  cookpad: {
+    name: 'Cookpad',
+    domain: 'cookpad.com',
+  },
 };
 
 // Generate stable ID from URL using SHA-256 hash
