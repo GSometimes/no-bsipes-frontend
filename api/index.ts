@@ -16,6 +16,10 @@ interface Recipe {
   ingredients: string[];
   instructions: string[];
   image?: string;
+  author?: string;
+  prepTime?: string;
+  cookTime?: string;
+  totalTime?: string;
   sourceUrl: string;
   siteName: string;
   scrapedAt: string;
@@ -36,6 +40,10 @@ const SITE_CONFIG: Record<string, { name: string; domain: string }> = {
   tastyco: {
     name: 'Tasty Co',
     domain: 'tasty.co',
+  },
+  cookpad: {
+    name: 'Cookpad',
+    domain: 'cookpad.com',
   },
 };
 
@@ -78,6 +86,61 @@ function extractImage(image: unknown): string | undefined {
   return undefined;
 }
 
+// Extract author name from various JSON-LD formats
+// Handles: string, single object with name, array of objects with name
+function extractAuthor(author: unknown): string | undefined {
+  // Plain string: "author": "Jane Doe"
+  if (typeof author === 'string') return author;
+
+  // Single object: "author": { "@type": "Person", "name": "Jane Doe" }
+  if (isObject(author) && typeof author.name === 'string') {
+    return author.name;
+  }
+
+  // Array of objects: "author": [{ "name": "Jane" }, { "name": "John" }]
+  if (Array.isArray(author)) {
+    const names = author
+      .map((a) => {
+        if (typeof a === 'string') return a;
+        if (isObject(a) && typeof a.name === 'string') return a.name;
+        return null;
+      })
+      .filter((name): name is string => name !== null && name.length > 0);
+
+    return names.length > 0 ? names.join(', ') : undefined;
+  }
+
+  return undefined;
+}
+
+// Parse ISO 8601 duration (e.g. "PT2H35M") into readable string (e.g. "2 hr 35 min")
+// Falls back to returning the original string if it's not ISO format
+function parseDuration(value: string): string {
+  const match = value.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/i);
+
+  if (!match) {
+    // Not ISO 8601 — return as-is (handles freeform like "30 minutes")
+    return value;
+  }
+
+  const hours = match[1] ? parseInt(match[1], 10) : 0;
+  const minutes = match[2] ? parseInt(match[2], 10) : 0;
+  const seconds = match[3] ? parseInt(match[3], 10) : 0;
+
+  const parts: string[] = [];
+  if (hours > 0) parts.push(`${hours} hr`);
+  if (minutes > 0) parts.push(`${minutes} min`);
+  if (seconds > 0) parts.push(`${seconds} sec`);
+
+  return parts.length > 0 ? parts.join(' ') : value;
+}
+
+// Safely extract a time field and parse it
+function extractTime(value: unknown): string | undefined {
+  if (typeof value !== 'string' || value.trim().length === 0) return undefined;
+  return parseDuration(value.trim());
+}
+
 // Parse instructions from various formats
 function parseInstructions(instructions: unknown): string[] {
   if (!Array.isArray(instructions)) return [];
@@ -104,7 +167,6 @@ function extractFromJsonLd(html: string): Record<string, unknown> | null {
       if (!content) continue;
 
       const data: unknown = JSON.parse(content);
-      console.log(JSON.stringify(data, null, 2));
 
       // Handle array of JSON-LD objects
       const items = Array.isArray(data) ? data : [data];
@@ -242,10 +304,16 @@ app.post(
         ingredients,
         instructions,
         image: extractImage(recipeData.image),
+        author: extractAuthor(recipeData.author),
+        prepTime: extractTime(recipeData.prepTime),
+        cookTime: extractTime(recipeData.cookTime),
+        totalTime: extractTime(recipeData.totalTime),
         sourceUrl: url,
         siteName: siteConfig.name,
         scrapedAt: new Date().toISOString(),
       };
+
+      console.log('Scraped recipe:', JSON.stringify(recipe, null, 2));
 
       res.json({ success: true, recipe });
     } catch (error) {
@@ -271,5 +339,4 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Export for Vercel
-export default app;
+export { app };
