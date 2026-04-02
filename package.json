@@ -1,6 +1,7 @@
 {
   "name": "recipe-scraper",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"tsx watch api/index.ts\"",
     "dev:frontend": "vite",
