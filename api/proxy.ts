@@ -1,3 +1,6 @@
+// Bright Data re-signs TLS certs — disable strict TLS verification
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import axios, { AxiosInstance, isAxiosError } from 'axios';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
